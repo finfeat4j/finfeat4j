@@ -1,0 +1,67 @@
+plugins {
+    id 'java-library'
+    id 'maven-publish'
+}
+
+dependencies {
+    api files('libs/sfa-0.2.jar')
+    api project(':finfeat4j-core')
+
+    // sfa requirements
+    api 'com.github.wendykierp:JTransforms:3.1'
+    api 'com.carrotsearch:hppc:0.10.0' // original is using 0.7.2
+
+    // jmetal
+    api "org.uma.jmetal:jmetal-core:$jMetalVersion"
+    api "org.uma.jmetal:jmetal-parallel:$jMetalVersion"
+    api "org.uma.jmetal:jmetal-algorithm:$jMetalVersion"
+
+    api 'ch.qos.logback:logback-core:1.5.12'
+    api 'ch.qos.logback:logback-classic:1.5.12'
+    api 'org.slf4j:slf4j-api:2.1.0-alpha1'
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from components.java
+            pom {
+                name = 'FinFeat4j'
+                description = 'Financial Timeseries Feature Engineering Library'
+                url = 'https://github.com/finfeat4j/finfeat4j'
+                licenses {
+                    license {
+                        name = 'The Apache License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'eugene-kamenev'
+                        name = 'Eugene Kamenev'
+                        email = 'eugene.kamenev at gmail.com'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:git://github.com/finfeat4j/finfeat4j.git'
+                    url = 'https://github.com/finfeat4j/finfeat4j'
+                }
+            }
+        }
+    }
+    repositories {
+        maven {
+            // Set the URL to your repository (local or remote)
+            mavenLocal()
+        }
+
+        maven {
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/finfeat4j/finfeat4j")
+            credentials {
+                username = project.findProperty("gpr.user") ?: System.getenv("USERNAME")
+                password = project.findProperty("gpr.password") ?: System.getenv("TOKEN")
+            }
+        }
+    }
+}
