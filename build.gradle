@@ -1,0 +1,38 @@
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'groovy'
+    apply plugin: 'idea'
+
+    idea {
+        module {
+            downloadJavadoc = true
+            downloadSources = true
+        }
+    }
+
+    group 'com.github.finfeat4j'
+    version '1.0-SNAPSHOT'
+
+    java {
+        toolchain {
+            languageVersion = JavaLanguageVersion.of(21)
+        }
+        sourceCompatibility = '21'
+        targetCompatibility = '21'
+        withSourcesJar()
+    }
+
+    repositories {
+        mavenLocal()
+        mavenCentral()
+    }
+
+    dependencies {
+        testImplementation "org.spockframework:spock-core:$spockVersion"
+    }
+
+    tasks.named("test") {
+        useJUnitPlatform()
+        outputs.upToDateWhen { false }
+    }
+}
