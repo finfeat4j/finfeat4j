@@ -18,6 +18,9 @@ public class ROC<T extends Number> implements Indicator<T, BigDecimal> {
             buffer.addToEnd(value);
             var a = buffer.head().doubleValue();
             var b = buffer.tail().doubleValue();
-            return BigDecimal.valueOf(((a - b) / b) * 100.0d);
+            if (b != 0) {
+                return BigDecimal.valueOf(((a - b) / b) * 100.0d);
+            }
+            return BigDecimal.ZERO;
         }
 }
