@@ -1,39 +1,63 @@
 package com.github.finfeat4j.ml.sfa;
 
+import com.github.finfeat4j.core.Bar;
 import com.github.finfeat4j.core.Buffer.DoubleBuffer;
 import com.github.finfeat4j.core.Indicator;
-import com.github.finfeat4j.util.ArrayProducer;
-import com.github.finfeat4j.util.Dataset;
-import com.github.finfeat4j.util.FeatureIndex;
-import com.github.finfeat4j.util.IndicatorSet;
+import com.github.finfeat4j.util.*;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import sfa.timeseries.TimeSeries;
 import sfa.transformation.SFA;
 import sfa.transformation.SFA.HistogramType;
 
 public record SFATransformers(int winSize, Map<String, SFA> sfaMap) implements Serializable  {
 
-    @SuppressWarnings(value = {"rawtypes", "unchecked"})
-    public IndicatorSet<double[]> asIndicatorSet(String[] features) {
+    @SuppressWarnings(value = {"unchecked"})
+    public IndicatorSet<double[]> asIndicatorSet(String... features) {
         var array = new Indicator[features.length];
         for (int i = 0; i < array.length; i++) {
             var feature = features[i];
             var transformer = sfaMap.get(feature);
             if (transformer != null) {
-                array[i] = new ArrayProducer(new SFATransformer(i, winSize, transformer, feature), transformer.wordLength);
+                array[i] = new SFATransformer(i, winSize, transformer, feature);
             } else {
                 array[i] = new FeatureIndex(i, feature);
             }
         }
-        return new IndicatorSet<>(array);
+        return new IndicatorSet<double[]>(array);
+    }
+
+    public IndicatorSet<double[]> asIndicatorSet(IndicatorSet<Bar> initial, String... features) {
+        var names = initial.names();
+        var newOne = new IndicatorSet<double[]>();
+        var pattern = Pattern.compile(".*\\[(\\d+)\\]");
+        for (int i = 0; i < names.length; i++) {
+            var name = names[i];
+            var transformer = sfaMap.get(name);
+            var selectSet = Arrays.stream(features).filter(f -> f.contains(name)).toList();
+            if (transformer != null && !selectSet.isEmpty()) {
+                int renameIdx = newOne.names().length;
+                int[] selectIndexes = Arrays.stream(features)
+                        .filter(f -> f.contains(name))
+                        .map(pattern::matcher)
+                        .filter(Matcher::find)
+                        .mapToInt(m -> Integer.parseInt(m.group(1)))
+                        .toArray();
+                newOne.add(new SFATransformer(i, winSize, transformer, name).then(new ArrayReducer(selectIndexes)));
+                for (var f : selectSet) {
+                    newOne.rename(renameIdx++, f);
+                }
+            } else if (!selectSet.isEmpty()) {
+                newOne.add(new FeatureIndex(i, name));
+            }
+        }
+        return newOne;
     }
 
     public static SFATransformers load(InputStream modelFile) {
@@ -89,7 +113,7 @@ public record SFATransformers(int winSize, Map<String, SFA> sfaMap) implements S
         return record;
     }
 
-    public static class SFATransformer implements Indicator<double[], double[]> {
+    public static class SFATransformer implements ArrayProducer<double[], double[]> {
 
         private final int featureIdx;
         private final DoubleBuffer buffer;
@@ -122,12 +146,17 @@ public record SFATransformers(int winSize, Map<String, SFA> sfaMap) implements S
 
         @Override
         public String getName(Object... attrs) {
-            return Indicator.super.getName(name);
+            return ArrayProducer.super.getName(name);
         }
 
         @Override
         public String simpleName() {
             return "SFA";
+        }
+
+        @Override
+        public int size() {
+            return sfa.wordLength;
         }
     }
 }

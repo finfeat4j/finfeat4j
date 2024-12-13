@@ -65,3 +65,9 @@ publishing {
         }
     }
 }
+
+tasks.named('test') {
+    useJUnitPlatform()
+    maxHeapSize = "6g"
+    minHeapSize = "512m"
+}
