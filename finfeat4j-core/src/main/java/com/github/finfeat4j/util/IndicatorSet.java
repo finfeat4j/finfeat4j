@@ -5,11 +5,9 @@ import com.github.finfeat4j.label.InstanceTransformer;
 import com.github.finfeat4j.label.LabelProducer;
 import com.github.finfeat4j.label.LabelProducer.Instance;
 import com.github.finfeat4j.label.LabelProducer.OnlineLabelProducer;
+
 import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -41,28 +39,36 @@ public class IndicatorSet<T> {
 
     /**
      * Adds an indicator to the set.
+     *
      * @param indicator the indicator to add
      */
     public void add(Indicator<T, ?> indicator) {
-        var name = indicator.getName();
-        var names = new ArrayList<String>();
-        indexes.add(index);
-        if (indicator instanceof ArrayProducer<?, ?> producer) {
-            int size = producer.getSize();
-            for (int i = 0; i < size; i++) {
-                names.add(name + "[" + i + "]");
+        indicators.computeIfAbsent(indicator.getName(), (s) -> {
+            var name = indicator.getName();
+            var names = new ArrayList<String>();
+            indexes.add(index);
+            if (indicator instanceof ArrayProducer<?, ?> producer) {
+                int size = producer.size();
+                for (int i = 0; i < size; i++) {
+                    names.add(name + "[" + i + "]");
+                    index++;
+                }
+            } else {
                 index++;
+                names.add(name);
             }
-        } else {
-            index++;
-            names.add(name);
-        }
-        this.names.addAll(names);
-        indicators.put(indicator.getName(), indicator);
+            this.names.addAll(names);
+            return indicator;
+        });
+    }
+
+    public void rename(int index, String name) {
+        names.set(index, name);
     }
 
     /**
      * Transforms a stream of bars into a stream of double arrays.
+     *
      * @param stream of bars
      * @return a stream of indicator values
      */
@@ -75,6 +81,19 @@ public class IndicatorSet<T> {
                 indicators.values().toArray(Function[]::new)
             )
         );
+    }
+
+    public IndicatorSet<T> filter(String... names) {
+        var result = new IndicatorSet<T>();
+        for (var feature : names) {
+            for (var indicator : indicators.keySet()) {
+                if (feature.contains(indicator)) {
+                    result.add(indicators.get(indicator));
+                    break;
+                }
+            }
+        }
+        return result;
     }
 
     public Dataset withLabels(Stream<T> stream, LabelProducer producer, long stopId) {
@@ -114,10 +133,11 @@ public class IndicatorSet<T> {
 
     /**
      * Group indicators into a single array.
-     * @param totalSize the size of the resulting array
+     *
+     * @param totalSize  the size of the resulting array
      * @param indicators the indicators to group
+     * @param <C>        input type, usually a Bar instance
      * @return a function that groups the indicators into an array
-     * @param <C> input type, usually a Bar instance
      */
     static <C> Function<C, double[]> group(int totalSize, int[] indexes, Function<C, Object>... indicators) {
         return (s) -> {
@@ -146,6 +166,7 @@ public class IndicatorSet<T> {
 
     /**
      * Takes double values from a number.
+     *
      * @param o the object to convert
      * @return the double value
      */
