@@ -56,6 +56,6 @@ class TradingEngineSpec extends BaseSpec {
         result.numberOfTrades() == 3
         isCloseTo(result.totalProfit(), -150.0d)
         isCloseTo(result.averageProfitPercentage(), -4.76d)
-        isCloseTo(result.maxDrawdown(), -4.76d)
+        isCloseTo(result.maxDrawdown(), 4.76d)
     }
 }
