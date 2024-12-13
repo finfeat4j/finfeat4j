@@ -1,8 +1,7 @@
 package com.github.finfeat4j.util;
 
-import com.github.finfeat4j.core.Indicator;
 
-public class ArrayReducer implements Indicator<double[], double[]> {
+public class ArrayReducer implements ArrayProducer<double[], double[]> {
     private final int[] selectedIndices;
 
     /**
@@ -37,5 +36,10 @@ public class ArrayReducer implements Indicator<double[], double[]> {
             result[i] = values[selectedIndices[i]];
         }
         return result;
+    }
+
+    @Override
+    public int size() {
+        return selectedIndices.length;
     }
 }
