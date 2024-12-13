@@ -1,6 +1,7 @@
 package com.github.finfeat4j.core;
 
 import com.github.finfeat4j.util.ArrayProducer;
+import com.github.finfeat4j.util.ArrayProducerImpl;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.function.Function;
@@ -90,8 +91,8 @@ public interface Indicator<T, R> extends Function<T, R> {
         return this.getClass().getSimpleName();
     }
 
-    default Indicator<T,R> array(int size) {
-        return new ArrayProducer<>(this, size);
+    default ArrayProducer<T,R> array(int size) {
+        return new ArrayProducerImpl<>(this, size);
     }
 
     /**
@@ -102,7 +103,11 @@ public interface Indicator<T, R> extends Function<T, R> {
      */
     default <V> Indicator<T, V> then(Indicator<R, V> after) {
         Function<T, V> func = (T t) -> after.apply(this.apply(t));
-        return new Wrapper<>(func, after.getName(this.getName()));
+        var wrapped = new Wrapper<>(func, after.getName(this.getName()));
+        if (after instanceof ArrayProducer<R, V>) {
+            return new ArrayProducerImpl<>(wrapped, ((ArrayProducer<R,V>) after).size());
+        }
+        return wrapped;
     }
 
     /**
