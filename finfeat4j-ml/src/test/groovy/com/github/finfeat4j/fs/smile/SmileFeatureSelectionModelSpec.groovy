@@ -3,6 +3,7 @@ package com.github.finfeat4j.fs.smile
 import com.github.finfeat4j.BaseSpec
 import com.github.finfeat4j.fs.DatasetSupplier
 import com.github.finfeat4j.fs.jmetal.FeatureSelectionModel
+import com.github.finfeat4j.trading.TradingEngine
 import com.github.finfeat4j.util.ToIntArrayConverter
 import smile.classification.Classifier
 import smile.classification.DiscreteNaiveBayes
@@ -32,7 +33,7 @@ class SmileFeatureSelectionModelSpec extends BaseSpec {
         }
 
         when:
-        def model = new SmileFeatureSelectionModel(train, test, dataset, 0.8d)
+        def model = new SmileFeatureSelectionModel(train, test, dataset, 0.8d, () -> new TradingEngine(0.0004))
         def result = model.runAll(dataset.features(), new String[0][], 10)
 
         then:

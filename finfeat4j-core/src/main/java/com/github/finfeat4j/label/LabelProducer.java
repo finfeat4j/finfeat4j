@@ -13,6 +13,7 @@ public interface LabelProducer extends Indicator<BigDecimal, Result[]> {
         SELL(1),
         BUY_OVERSHOOT(2),
         SELL_OVERSHOOT(3),
+        UNKNOWN(Integer.MIN_VALUE)
         ;
 
         private final int code;
@@ -26,12 +27,14 @@ public interface LabelProducer extends Indicator<BigDecimal, Result[]> {
         }
 
         public static Label valueOf(int code) {
-            for (Label label : values()) {
-                if (label.code() == code) {
-                    return label;
-                }
-            }
-            throw new IllegalArgumentException("Unknown label code: " + code);
+            return switch (code) {
+                case 0 -> BUY;
+                case 1 -> SELL;
+                case 2 -> BUY_OVERSHOOT;
+                case 3 -> SELL_OVERSHOOT;
+                // this should not happen, but some classifiers return unknown labels :(
+                default -> UNKNOWN;
+            };
         }
     }
 
