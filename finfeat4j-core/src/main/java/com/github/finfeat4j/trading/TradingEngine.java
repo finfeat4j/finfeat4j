@@ -34,7 +34,7 @@ public class TradingEngine implements Indicator<LabelProducer.Instance, TradingE
         }
         return new Result(
                 totalProfit,
-                maxDrawdownPercentage,
+                Math.abs(maxDrawdownPercentage),
                 numberOfTrades > 0 ? totalProfitPercentage / numberOfTrades : 0,
                 numberOfTrades
         );
