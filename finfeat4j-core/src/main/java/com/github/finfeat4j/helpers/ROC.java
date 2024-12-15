@@ -8,9 +8,11 @@ import java.math.BigDecimal;
 public class ROC<T extends Number> implements Indicator<T, BigDecimal> {
 
         private final Buffer.ObjBuffer<T> buffer;
+        private final Params params;
 
         public ROC(int length) {
             this.buffer = new Buffer.ObjBuffer<>(length + 1);
+            this.params = new Params(length);
         }
 
         @Override
@@ -23,4 +25,9 @@ public class ROC<T extends Number> implements Indicator<T, BigDecimal> {
             }
             return BigDecimal.ZERO;
         }
+
+    @Override
+    public Params getParams() {
+        return this.params;
+    }
 }
