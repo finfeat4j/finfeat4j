@@ -1,7 +1,7 @@
 package com.github.finfeat4j
 
-import com.github.finfeat4j.core.Bar
-import com.github.finfeat4j.util.Dataset
+import com.github.finfeat4j.api.Bar
+import com.github.finfeat4j.core.Dataset
 import spock.lang.Shared
 import spock.lang.Specification
 

@@ -1,12 +1,11 @@
 package com.github.finfeat4j.others.quant;
 
 import com.github.finfeat4j.core.Buffer;
-import com.github.finfeat4j.core.Indicator;
-import com.github.finfeat4j.util.ArrayProducer;
+import com.github.finfeat4j.api.Indicator;
 
 import java.math.BigDecimal;
 
-public class QuantIndicator implements ArrayProducer<BigDecimal, double[]> {
+public class QuantIndicator implements Indicator.ArrayProducer<BigDecimal, double[]> {
   private final Buffer.DoubleBuffer buffer;
   private final int tsLen;
 

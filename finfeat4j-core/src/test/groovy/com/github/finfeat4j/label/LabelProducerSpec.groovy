@@ -1,13 +1,15 @@
 package com.github.finfeat4j.label
 
 import com.github.finfeat4j.BaseSpec
-import com.github.finfeat4j.helpers.bar.AvgPrice
+import com.github.finfeat4j.api.Bar
+import com.github.finfeat4j.api.Indicator
+import com.github.finfeat4j.api.Classifier
 import com.github.finfeat4j.helpers.bar.Close
-import com.github.finfeat4j.ma.SMA
-import com.github.finfeat4j.util.IndicatorSet
-import com.github.finfeat4j.label.LabelProducer.OnlineLabelProducer;
-import com.github.finfeat4j.label.LabelProducer.Instance;
-import com.github.finfeat4j.label.LabelProducer.Result;
+import com.github.finfeat4j.ta.ma.SMA
+import com.github.finfeat4j.validation.TradingEngine
+import com.github.finfeat4j.core.IndicatorSet
+import com.github.finfeat4j.api.LabelProducer.OnlineLabelProducer
+import com.github.finfeat4j.api.LabelProducer.Result;
 
 import java.util.function.Function
 import java.util.stream.Stream
@@ -46,21 +48,30 @@ class LabelProducerSpec extends BaseSpec {
 
     def 'test online producer'() {
         when:
-        def test = new OnlineLabelProducer(new DirectionalChange(0.05))
-        def stream = BARS.stream()
+        def test = new OnlineLabelProducer(new TrendLabel(0.05))
+        def stream = BARS.stream()//.skip(115)
         def set = new IndicatorSet<>(
-            new Close(),
-            new AvgPrice(),
-            new Close().then(new SMA(3))
+            new Close().rename("trendPrice"),
+            new Close().rename("price"),
+            new Close().then(new SMA(3)),
+            new Indicator.Wrapper<Bar, Integer>((bar) -> -1, "class"),
         )
-        long[] id = new long[1];
         def transformed = set.transform(stream)
-            .map(new InstanceTransformer(test, 0, 1))
-            .flatMap(Function.identity())
+            .map(new InstanceTransformer(test, 0, 1, 3))
+            .flatMap(Classifier.TrainTest::train)
             .toArray(Instance[]::new)
 
         then:
         // TODO: add checks
         transformed
+
+        when:
+        var prices = Arrays.stream(transformed).mapToDouble(it -> it.price()).toArray()
+        var labels = Arrays.stream(transformed).mapToInt(it -> it.actual().code()).toArray()
+
+        var result = TradingEngine.from(0.0004, labels, prices);
+
+        then:
+        result
     }
 }
