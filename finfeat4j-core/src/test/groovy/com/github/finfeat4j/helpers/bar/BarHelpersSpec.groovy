@@ -2,7 +2,7 @@ package com.github.finfeat4j.helpers.bar
 
 
 import com.github.finfeat4j.BaseSpec
-import com.github.finfeat4j.core.Bar.BaseBar
+import com.github.finfeat4j.api.Bar.BaseBar
 import spock.lang.Shared
 
 class BarHelpersSpec extends BaseSpec {

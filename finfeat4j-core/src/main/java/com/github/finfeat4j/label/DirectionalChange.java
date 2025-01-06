@@ -1,5 +1,7 @@
 package com.github.finfeat4j.label;
 
+import com.github.finfeat4j.api.LabelProducer;
+
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -111,7 +113,7 @@ public class DirectionalChange implements LabelProducer {
 
     private void addReversals() {
         if (lastReversal != null) {
-            reversals.add(this.firstOvershoot);
+            //reversals.add(this.firstOvershoot);
             reversals.add(this.lastReversal);
         }
     }

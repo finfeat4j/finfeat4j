@@ -7,7 +7,7 @@ import java.util.Random;
  */
 public class Shuffle {
     public static void shuffle(Object[] samples, long seed) {
-        Random r = new Random(seed);
+        var r = new Random(seed);
         for (int i = 0; i < samples.length - 1; i++) {
             int si = i + r.nextInt(samples.length - i);
             if (si > i) {
@@ -19,7 +19,7 @@ public class Shuffle {
     }
 
     public static void shuffle(double[] samples, long seed) {
-        Random r = new Random(seed);
+        var r = new Random(seed);
         for (int i = 0; i < samples.length - 1; i++) {
             int si = i + r.nextInt(samples.length - i);
             if (si > i) {
@@ -31,7 +31,7 @@ public class Shuffle {
     }
 
     public static void shuffle(int[] samples, long seed) {
-        Random r = new Random(seed);
+        var r = new Random(seed);
         for (int i = 0; i < samples.length - 1; i++) {
             int si = i + r.nextInt(samples.length - i);
             if (si > i) {

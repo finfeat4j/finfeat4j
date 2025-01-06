@@ -1,7 +1,7 @@
 package com.github.finfeat4j.helpers;
 
 import com.github.finfeat4j.core.Buffer.ObjBuffer;
-import com.github.finfeat4j.core.Indicator;
+import com.github.finfeat4j.api.Indicator;
 import com.github.finfeat4j.helpers.MinMax.Result;
 import com.github.finfeat4j.util.SortedVector;
 import java.math.BigDecimal;
@@ -15,8 +15,8 @@ public class MinMax<T extends Number> implements Indicator<T, Result<BigDecimal>
     private final SortedVector vector;
     private final ObjBuffer<T> buffer;
     private final Params params;
-    private double tempMin = Double.POSITIVE_INFINITY;
-    private double tempMax = Double.NEGATIVE_INFINITY;
+    private double tempMin = Double.MAX_VALUE;
+    private double tempMax = Double.MIN_VALUE;
 
     public MinMax(int length) {
         this.vector = new SortedVector(length);

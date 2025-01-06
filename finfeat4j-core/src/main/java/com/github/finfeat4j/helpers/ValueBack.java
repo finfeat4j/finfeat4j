@@ -1,7 +1,7 @@
 package com.github.finfeat4j.helpers;
 
 import com.github.finfeat4j.core.Buffer.ObjBuffer;
-import com.github.finfeat4j.core.Indicator;
+import com.github.finfeat4j.api.Indicator;
 
 /**
  * ValueBack indicator returns the previous value of the input.

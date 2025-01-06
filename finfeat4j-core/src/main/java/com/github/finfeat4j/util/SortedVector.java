@@ -127,6 +127,14 @@ public class SortedVector {
         availSlot = -1;
     }
 
+    public int indexOf(double value) {
+        return Arrays.binarySearch(a, value);
+    }
+
+    public double valueAt(int index) {
+        return a[index];
+    }
+
     /**
      * remove the item from the full list of items. runtime is O(log_2(N)). NOTE: this could be made
      * O(1) runtime complexity at the expense of 3 * space complexity.

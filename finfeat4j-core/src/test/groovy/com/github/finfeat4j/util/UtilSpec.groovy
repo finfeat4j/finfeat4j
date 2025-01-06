@@ -1,11 +1,13 @@
 package com.github.finfeat4j.util
 
 import com.github.finfeat4j.BaseSpec
-import com.github.finfeat4j.core.Bar
-import com.github.finfeat4j.core.Indicator.Wrapper
+import com.github.finfeat4j.api.Bar
+import com.github.finfeat4j.api.Indicator.Wrapper
+import com.github.finfeat4j.core.Dataset
+import com.github.finfeat4j.core.IndicatorSet
 import com.github.finfeat4j.helpers.bar.Close
 import com.github.finfeat4j.helpers.bar.Low
-import com.github.finfeat4j.ma.SMA
+import com.github.finfeat4j.ta.ma.SMA
 import com.github.finfeat4j.stats.Stats
 
 class UtilSpec extends BaseSpec {

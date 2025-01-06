@@ -1,5 +1,7 @@
 package com.github.finfeat4j.label;
 
+import com.github.finfeat4j.api.LabelProducer;
+
 import java.math.BigDecimal;
 
 /**
@@ -20,13 +22,14 @@ import java.math.BigDecimal;
  * }
  */
 public class TrendLabel implements LabelProducer {
+    private final double threshold;
+
     private double FP = Double.NaN;
     private double x_H;
     private long HT;
     private double x_L;
     private long LT;
     private int Cid;
-    private final double threshold;
     private long id;
 
     /**
@@ -71,7 +74,7 @@ public class TrendLabel implements LabelProducer {
             if (x < x_L) {
                 x_L = x;
                 LT = id;
-            } else if (x > x_L + x_L * threshold && HT < LT) {
+            } else if (x > x_L + x_L * threshold && HT <= LT) {
                 // from HT to LT is downtrend return reversal
                 state = new Result(LT, BigDecimal.valueOf(x_L), Label.BUY);
                 x_H = x;
