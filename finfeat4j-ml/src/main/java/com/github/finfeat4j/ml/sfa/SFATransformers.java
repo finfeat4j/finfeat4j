@@ -1,9 +1,10 @@
 package com.github.finfeat4j.ml.sfa;
 
-import com.github.finfeat4j.core.Bar;
+import com.github.finfeat4j.api.Bar;
 import com.github.finfeat4j.core.Buffer.DoubleBuffer;
-import com.github.finfeat4j.core.Indicator;
-import com.github.finfeat4j.util.*;
+import com.github.finfeat4j.api.Indicator;
+import com.github.finfeat4j.core.Dataset;
+import com.github.finfeat4j.core.IndicatorSet;
 
 import java.io.*;
 import java.util.*;
@@ -27,7 +28,7 @@ public record SFATransformers(int winSize, Map<String, SFA> sfaMap) implements S
             if (transformer != null) {
                 array[i] = new SFATransformer(i, winSize, transformer, feature);
             } else {
-                array[i] = new FeatureIndex(i, feature);
+                array[i] = Indicator.of(i, feature);
             }
         }
         return new IndicatorSet<double[]>(array);
@@ -43,40 +44,31 @@ public record SFATransformers(int winSize, Map<String, SFA> sfaMap) implements S
             var selectSet = Arrays.stream(features).filter(f -> f.contains(name)).toList();
             if (transformer != null && !selectSet.isEmpty()) {
                 int renameIdx = newOne.names().length;
-                int[] selectIndexes = Arrays.stream(features)
-                        .filter(f -> f.contains(name))
+                int[] selectIndexes = selectSet.stream()
                         .map(pattern::matcher)
                         .filter(Matcher::find)
                         .mapToInt(m -> Integer.parseInt(m.group(1)))
                         .toArray();
-                newOne.add(new SFATransformer(i, winSize, transformer, name).then(new ArrayReducer(selectIndexes)));
+                newOne.add(new SFATransformer(i, winSize, transformer, name).then(Indicator.ArrayProducer.defaultReducer(selectIndexes)));
                 for (var f : selectSet) {
                     newOne.rename(renameIdx++, f);
                 }
             } else if (!selectSet.isEmpty()) {
-                newOne.add(new FeatureIndex(i, name));
+                newOne.add(Indicator.of(i, name));
             }
         }
         return newOne;
     }
 
-    public static SFATransformers load(InputStream modelFile) {
-        try {
-            return (SFATransformers) new ObjectInputStream(modelFile).readObject();
-        } catch (IOException | ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     public static SFATransformers fit(Dataset input, HistogramType histogramType, int wordLength, int alphabetSize,
-        int windowSize, File modelFile, String labelColumn, double trainRatio, String... skipColumns) {
+                                      int windowSize, File modelFile, String labelColumn, double trainRatio, String... skipColumns) {
         var toSkip = Set.of(skipColumns);
         var cols = Arrays.stream(input.features())
-            .filter(Predicate.not(toSkip::contains))
-            .toArray(String[]::new);
+                .filter(Predicate.not(toSkip::contains))
+                .toArray(String[]::new);
         var transformers = new ConcurrentHashMap<String, SFA>();
         var labels = input.column(labelColumn);
-        var ratio = Math.max(0.05, Math.min(trainRatio, 1.0));
+        var ratio = Math.max(0.5, Math.min(trainRatio, 1.0));
         Arrays.stream(cols).parallel().forEach(column -> {
             if (column.equals(labelColumn)) {
                 return;
@@ -86,34 +78,30 @@ public record SFATransformers(int winSize, Map<String, SFA> sfaMap) implements S
             var series = new ArrayList<TimeSeries>();
             int trainLen = (int) (featureVec.length * ratio);
             for (int i = 0; i < trainLen - windowSize + 1; i++) {
-                var label = labels[i];
-                series.add(new TimeSeries(Arrays.copyOfRange(featureVec, i, i + windowSize), label));
+                series.add(new TimeSeries(Arrays.copyOfRange(featureVec, i, i + windowSize), labels[i]));
             }
             sfa.fitTransform(series.toArray(TimeSeries[]::new), wordLength, alphabetSize, false);
             transformers.put(column, sfa);
         });
         var transformersMap = new HashMap<>(transformers);
         var record = new SFATransformers(windowSize, transformersMap);
-        try {
-            var out = new ObjectOutputStream(new FileOutputStream(modelFile));
-            try {
-                out.writeObject(record);
-            } catch (Throwable t) {
-                try {
-                    out.close();
-                } catch (Throwable t2) {
-                    t.addSuppressed(t2);
-                }
-                throw t;
-            }
-            out.close();
-        } catch (IOException var7) {
-            throw new RuntimeException(var7);
+        try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(modelFile))) {
+            out.writeObject(record);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to save SFATransformers to file", e);
         }
         return record;
     }
 
-    public static class SFATransformer implements ArrayProducer<double[], double[]> {
+    public static SFATransformers load(File modelFile) {
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(modelFile))) {
+            return (SFATransformers) ois.readObject();
+        } catch (IOException | ClassNotFoundException e) {
+            throw new RuntimeException("Failed to load SFATransformers from file", e);
+        }
+    }
+
+    public static class SFATransformer implements Indicator.ArrayProducer<double[], double[]> {
 
         private final int featureIdx;
         private final DoubleBuffer buffer;
@@ -141,7 +129,7 @@ public record SFATransformers(int winSize, Map<String, SFA> sfaMap) implements S
                 }
                 return result;
             }
-            return new double[4];
+            return new double[sfa.wordLength];
         }
 
         @Override

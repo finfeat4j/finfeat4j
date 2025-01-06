@@ -1,14 +1,13 @@
 package com.github.finfeat4j.ml.sfa
 
 import com.github.finfeat4j.BaseSpec
-import com.github.finfeat4j.core.Bar
-import com.github.finfeat4j.core.Indicator
+import com.github.finfeat4j.api.Bar
+import com.github.finfeat4j.api.Indicator
 import com.github.finfeat4j.helpers.bar.Close
-import com.github.finfeat4j.label.InstanceTransformer
 import com.github.finfeat4j.label.TrendLabel
-import com.github.finfeat4j.ma.SMA
+import com.github.finfeat4j.ta.ma.SMA
 import com.github.finfeat4j.others.quant.QuantIndicator
-import com.github.finfeat4j.util.IndicatorSet
+import com.github.finfeat4j.core.IndicatorSet
 import sfa.transformation.SFA
 
 import java.util.function.Supplier
@@ -55,7 +54,7 @@ class SFATransformersSpec extends BaseSpec {
         sfaTransformed.data().length == withLabels.data().length - winSize
 
         when: 'test sfa transform with loaded model'
-        transformers = SFATransformers.load(modelFile.newInputStream())
+        transformers = SFATransformers.load(modelFile)
         def sfaTransformed2 = transformers.asIndicatorSet(withLabels.features())
             .asDataset(Arrays.stream(withLabels.data()), winSize)
 

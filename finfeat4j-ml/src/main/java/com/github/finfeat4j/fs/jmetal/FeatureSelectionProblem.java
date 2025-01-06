@@ -9,20 +9,20 @@ import org.uma.jmetal.component.catalogue.ea.replacement.impl.RankingAndDensityE
 import org.uma.jmetal.component.catalogue.ea.selection.impl.NaryTournamentSelection;
 import org.uma.jmetal.component.catalogue.ea.variation.impl.CrossoverAndMutationVariation;
 import org.uma.jmetal.operator.mutation.impl.BitFlipMutation;
+import org.uma.jmetal.operator.selection.impl.BinaryTournamentSelection;
 import org.uma.jmetal.problem.Problem;
 import org.uma.jmetal.problem.binaryproblem.impl.AbstractBinaryProblem;
 import org.uma.jmetal.solution.binarysolution.BinarySolution;
 import org.uma.jmetal.solution.binarysolution.impl.DefaultBinarySolution;
-import org.uma.jmetal.util.comparator.MultiComparator;
+import org.uma.jmetal.util.comparator.RankingAndCrowdingDistanceComparator;
 import org.uma.jmetal.util.densityestimator.impl.CrowdingDistanceDensityEstimator;
 import org.uma.jmetal.util.ranking.impl.FastNonDominatedSortRanking;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.List;
 import java.util.function.Function;
-import java.util.stream.IntStream;
+
 
 public class FeatureSelectionProblem extends AbstractBinaryProblem {
 
@@ -33,7 +33,6 @@ public class FeatureSelectionProblem extends AbstractBinaryProblem {
   private final int metricSize;
   private final List<Integer> bits;
   private final boolean[] optimization;
-  private final double[] empty;
   private final String[] columNames;
 
   public FeatureSelectionProblem(String[] columNames,
@@ -44,15 +43,7 @@ public class FeatureSelectionProblem extends AbstractBinaryProblem {
     this.bits = List.of(totalFeatures);
     this.metricSize = metricsSize;
     this.optimization = optimization;
-    this.empty = new double[optimization.length];
     this.columNames = columNames;
-    for (int i = 0; i < empty.length; i++) {
-      if (optimization[i]) {
-        this.empty[i] = Double.NEGATIVE_INFINITY;
-      } else {
-        this.empty[i] = Double.POSITIVE_INFINITY;
-      }
-    }
   }
 
   @Override
@@ -82,13 +73,10 @@ public class FeatureSelectionProblem extends AbstractBinaryProblem {
 
   @Override
   public BinarySolution evaluate(BinarySolution solution) {
-    var bits = solution.variables().getFirst();
-    var features = bits.stream()
-            .mapToObj(i -> columNames[i])
-            .toArray(String[]::new);
+    var features = getFeatures(solution);
     var result = fitness.apply(features);
     if (result == null) {
-      log.error("Returned null for {}", Arrays.toString(features));
+      throw new RuntimeException("Returned null for " + Arrays.toString(features));
     }
     for (int i = 0; i < metricSize; i++) {
       solution.objectives()[i] = optimization[i] ? -result[i] : result[i];
@@ -97,18 +85,22 @@ public class FeatureSelectionProblem extends AbstractBinaryProblem {
     return solution;
   }
 
+  private String[] getFeatures(BinarySolution solution) {
+    return solution.variables().getFirst().stream()
+            .mapToObj(i -> columNames[i])
+            .toArray(String[]::new);
+  }
+
   public static List<BinarySolution> initialSolutions(String[] features, String[][] initial, int metricSize, Problem<BinarySolution> problem) {
     var solutions = new ArrayList<BinarySolution>();
     var bits = List.of(features.length);
+    var indexed = Arrays.asList(features);
     for (var sol : initial) {
       var solution = new DefaultBinarySolution(bits, metricSize);
-      var bitSet = solution.variables().get(0);
+      var bitSet = solution.variables().getFirst();
       bitSet.clear();
       for (var feat : sol) {
-        var index = IntStream.range(0, features.length)
-                .filter(i -> features[i].equals(feat))
-                .findFirst()
-                .orElse(-1);
+        var index = indexed.indexOf(feat);
         if (index != -1) {
           bitSet.set(index, true);
         } else {
@@ -143,18 +135,13 @@ public class FeatureSelectionProblem extends AbstractBinaryProblem {
             new CrossoverAndMutationVariation<>(
                     100, crossover, mutation);
 
-    int tournamentSize = 2;
-    var selection =
-            new NaryTournamentSelection<S>(
-                    tournamentSize,
-                    variation.getMatingPoolSize(),
-                    new MultiComparator<S>(
-                            Arrays.asList(
-                                    Comparator.comparing(ranking::getRank),
-                                    Comparator.comparing(densityEstimator::value).reversed())));
+    var selection = new NaryTournamentSelection<S>(
+      new BinaryTournamentSelection<>(new RankingAndCrowdingDistanceComparator<>()), variation.getMatingPoolSize()
+    );
+
     var steadyTermination = new TerminationBySteadyFitness(features, maximize, metricSize, bestOnes);
 
-    return new EvolutionaryAlgorithm<S>("NSGAII", initial, evaluator, steadyTermination,
+    return new EvolutionaryAlgorithm<>("NSGAII", initial, evaluator, steadyTermination,
             selection, variation, replacement);
   }
 
