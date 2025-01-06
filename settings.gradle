@@ -1,2 +1,2 @@
 rootProject.name = 'finfeat4j'
-include 'finfeat4j-core', 'finfeat4j-ml'
+include 'finfeat4j-core', 'finfeat4j-ml', 'finfeat4j-experiment'
