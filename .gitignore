@@ -37,3 +37,5 @@ bin/
 
 ### Mac OS ###
 .DS_Store
+
+finfeat4j-experiment/src/main/resources/application.yml
