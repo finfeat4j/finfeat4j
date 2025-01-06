@@ -1,0 +1,38 @@
+<!DOCTYPE configuration>
+<configuration scan="false">
+    <statusListener class="ch.qos.logback.core.status.NopStatusListener" />
+    <property scope="context" name="defaultPattern" value="%d [%thread] %-5level %logger{35} - %m %replace(%xException){'\n','\u2028'}%nopex%n"/>
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>
+                ${defaultPattern}
+            </pattern>
+        </encoder>
+    </appender>
+    <appender name="roll-by-time" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>app.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>app.%d{yyyy-MM-dd}.log.zip
+            </fileNamePattern>
+            <maxHistory>20</maxHistory>
+            <totalSizeCap>10MB</totalSizeCap>
+        </rollingPolicy>
+        <encoder>
+            <pattern>${defaultPattern}</pattern>
+        </encoder>
+    </appender>
+    <logger name="org.springframework.web.reactive" level="DEBUG" />
+    <logger name="org.apache.spark" level="WARN" />
+    <logger name="reactor.netty" level="DEBUG" />
+    <logger name="smile.classification.GradientTreeBoost" level="WARN"/>
+    <logger name="smile.classification.AdaBoost" level="WARN"/>
+    <logger name="smile.classification.MLP" level="WARN"/>
+    <logger name="smile.math.BFGS" level="ERROR"/>
+    <logger name="smile.classification.RandomForest" level="WARN"/>
+    <logger name="smile.classification.DiscreteNaiveBayes" level="WARN"/>
+    <logger name="smile.clustering.KMeans" level="WARN"/>
+    <root level="debug">
+        <appender-ref ref="STDOUT"/>
+        <appender-ref ref="roll-by-time"/>
+    </root>
+</configuration>

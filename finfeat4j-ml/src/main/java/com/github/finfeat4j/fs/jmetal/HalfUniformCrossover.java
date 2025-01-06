@@ -6,10 +6,8 @@ import org.uma.jmetal.util.errorchecking.Check;
 import org.uma.jmetal.util.pseudorandom.JMetalRandom;
 import org.uma.jmetal.util.pseudorandom.RandomGenerator;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.IntStream;
-import java.util.Arrays;
 
 import static com.github.finfeat4j.util.Shuffle.shuffle;
 
@@ -52,20 +50,23 @@ public class HalfUniformCrossover<S extends BinarySolution> implements Crossover
      */
     public List<S> doCrossover(
             double probability, S parent1, S parent2) {
-        List<S> offspring = new ArrayList<>(2);
-        offspring.add((S) parent1.copy());
-        offspring.add((S) parent2.copy());
+
+        List<S> offspring = List.of((S) parent1.copy(), (S) parent2.copy());
 
         if (crossoverRandomGenerator.getRandomValue() < probability) {
-            int commonLength = Math.min(parent1.variables().get(0).length(), parent2.variables().get(0).length());
+            var parent1Vars = parent1.variables().get(0);
+            var parent2Vars = parent2.variables().get(0);
+            int commonLength = Math.min(parent1Vars.length(), parent2Vars.length());
+
             var diffIndices = IntStream.range(0, commonLength)
-                    .filter(i -> parent1.variables().get(0).get(i) != parent2.variables().get(0).get(i))
-                    .boxed()
-                    .toArray(Integer[]::new);
+                    .filter(i -> parent1Vars.get(i) != parent2Vars.get(i))
+                    .toArray();
+
             shuffle(diffIndices, JMetalRandom.getInstance().nextInt(0, commonLength));
             int changes = diffIndices.length / 2;
-            diffIndices = Arrays.copyOfRange(diffIndices, 0, changes);
-            for (int index : diffIndices) {
+
+            for (int i = 0; i < changes; i++) {
+                int index = diffIndices[i];
                 boolean temp = offspring.get(0).variables().get(0).get(index);
                 offspring.get(0).variables().get(0).set(index, offspring.get(1).variables().get(0).get(index));
                 offspring.get(1).variables().get(0).set(index, temp);

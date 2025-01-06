@@ -1,25 +1,29 @@
 package com.github.finfeat4j
 
-import com.github.finfeat4j.core.Bar
-import com.github.finfeat4j.util.Dataset
+import com.github.finfeat4j.api.Bar
+import com.github.finfeat4j.core.Dataset
 import spock.lang.Specification
 
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.closeTo
 
 class BaseSpec extends Specification {
-    public static List<Bar> BARS = BaseSpec
-            .getResource("data.csv").readLines().drop(1).collect {
-        def parts = it.split(",")
-        new Bar.BaseBar(
-                parts[0].toLong(),
-                new BigDecimal(parts[1]),
-                new BigDecimal(parts[2]),
-                new BigDecimal(parts[3]),
-                new BigDecimal(parts[4]),
-                new BigDecimal(parts[5]),
-                parts[6].toLong()
-        )
+    public static List<Bar> BARS = loadBars('data.csv')
+
+    static List<Bar> loadBars(String fileName) {
+        return BaseSpec
+                .getResource(fileName).readLines().drop(1).collect {
+            def parts = it.split(",")
+            new Bar.BaseBar(
+                    parts[0].toLong(),
+                    new BigDecimal(parts[1]),
+                    new BigDecimal(parts[2]),
+                    new BigDecimal(parts[3]),
+                    new BigDecimal(parts[4]),
+                    new BigDecimal(parts[5]),
+                    parts[6].toLong()
+            )
+        }
     }
 
     boolean equals(int[] a, int[] b) {
@@ -73,9 +77,5 @@ class BaseSpec extends Specification {
         var anotherCols = another.features();
         equals(oneCols, anotherCols)
         return true
-    }
-
-    Dataset load(String name, Class clazz = this.getClass()) {
-        return Dataset.load(clazz.getResource(name).newInputStream())
     }
 }
