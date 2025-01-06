@@ -1,0 +1,6 @@
+#NOTE: This is a Maven Resolver internal implementation file, its format can be changed without prior notice.
+#Fri Oct 25 11:59:40 ALMT 2024
+moa-2024.07.1-SNAPSHOT.pom>=
+moa-2024.07.1-SNAPSHOT.jar>=
+moa-2024.07.1-SNAPSHOT-sources.jar>=
+moa-2024.07.1-SNAPSHOT-test-sources.jar>=

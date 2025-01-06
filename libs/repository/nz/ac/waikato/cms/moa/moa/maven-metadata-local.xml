@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata>
+  <groupId>nz.ac.waikato.cms.moa</groupId>
+  <artifactId>moa</artifactId>
+  <versioning>
+    <versions>
+      <version>2024.07.1-SNAPSHOT</version>
+    </versions>
+    <lastUpdated>20241025055927</lastUpdated>
+  </versioning>
+</metadata>
