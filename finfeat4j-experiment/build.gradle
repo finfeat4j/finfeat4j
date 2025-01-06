@@ -1,0 +1,50 @@
+plugins {
+    id 'org.springframework.boot' version '3.4.0'
+    id 'io.spring.dependency-management' version '1.1.6'
+}
+
+dependencyManagement {
+    imports {
+        mavenBom 'io.projectreactor:reactor-bom:2024.0.1'
+    }
+    dependencies {
+        dependencySet(group:'com.fasterxml.jackson.datatype', version: '2.18.2') {
+            entry 'jackson-datatype-jsr310'
+        }
+        dependencySet(group:'com.fasterxml.jackson.core', version: '2.18.2') {
+            entry 'jackson-core'
+            entry 'jackson-annotations'
+            entry 'jackson-databind'
+        }
+    }
+    overriddenByDependencies = false
+}
+
+bootJar {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
+dependencies {
+    implementation project(':finfeat4j-core')
+    implementation project(':finfeat4j-ml')
+
+    implementation 'org.springframework.boot:spring-boot-starter'
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    implementation 'io.projectreactor:reactor-core'
+    implementation 'io.projectreactor.addons:reactor-extra'
+    implementation 'io.github.binance:binance-futures-connector-java:3.0.5'
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
+
+    implementation 'org.telegram:telegrambots-longpolling:8.0.0'
+    implementation 'org.telegram:telegrambots-client:8.0.0'
+}
+
+task runWithJavaExec(type: JavaExec) {
+    group = "Execution"
+    description = "Run the main class with JavaExecTask"
+    classpath = sourceSets.main.runtimeClasspath
+    main = 'com.github.exp.Temp'
+}
