@@ -17,7 +17,10 @@ public class Util {
     var intervals = new ArrayList<int[]>();
     IntStream.range(0, exponent).mapToDouble(i -> Math.pow(2, i)).forEach(n -> {
       var indices = linspace(0, inputLength, (int) n + 1);
-      var pairs = IntStream.range(0, indices.length - 1).mapToObj(j -> new int[]{indices[j], indices[j + 1]}).peek(intervals::add).flatMapToInt(IntStream::of).toArray();
+      var pairs = IntStream.range(0, indices.length - 1).mapToObj(j -> new int[]{indices[j], indices[j + 1]})
+              .peek(intervals::add)
+              .flatMapToInt(IntStream::of)
+              .toArray();
       if (n > 1 && median(diff(pairs)) > 1) {
         var shift = (int) Math.ceil(inputLength / n / 2);
         for (int j = 0; j < pairs.length - 2; j += 2) {
@@ -38,7 +41,9 @@ public class Util {
   }
 
   private static int[] diff(int[] array) {
-    return IntStream.iterate(0, i -> i <= array.length - 1, i -> i + 2).map(i -> array[i + 1] - array[i]).toArray();
+    return IntStream.iterate(0, i -> i <= array.length - 1, i -> i + 2)
+      .map(i -> array[i + 1] - array[i])
+      .toArray();
   }
 
   public static double[] diff(double[] array) {
@@ -109,17 +114,18 @@ public class Util {
     if (n <= 1) {
       return X;
     } else {
+      Arrays.sort(X); // note assumption is that we can sort X, which is a copy of the original data
       int num_quantiles = 1 + (n - 1) / div;
       double[] quantiles = new double[num_quantiles];
-
       if (num_quantiles == 1) {
         quantiles[0] = median(X);
       } else {
         for (int i = 0; i < num_quantiles; i++) {
-          double q = (double) i / (num_quantiles - 1);
-          quantiles[i] = quantile(X, q);
           if (i % 2 == 1) {
             quantiles[i] -= mean(X);
+          } else {
+            double q = (double) i / (num_quantiles - 1);
+            quantiles[i] = quantile(X, q);
           }
         }
       }
@@ -129,18 +135,17 @@ public class Util {
   }
 
   public static double median(double[] X) {
-    var clone = X.clone();
-    Arrays.sort(clone);
-    int n = clone.length;
+    // note X is already sorted
+    int n = X.length;
     if (n % 2 == 0) {
-      return (clone[n / 2 - 1] + clone[n / 2]) / 2.0;
+      return (X[n / 2 - 1] + X[n / 2]) / 2.0;
     } else {
-      return clone[n / 2];
+      return X[n / 2];
     }
   }
 
   public static double quantile(double[] X, double q) {
-    Arrays.sort(X);
+    // note X is already sorted
     int n = X.length;
     double pos = q * (n - 1) + 1;
     int floor = (int) Math.floor(pos);

@@ -1,7 +1,7 @@
 package com.github.finfeat4j
 
 import com.github.finfeat4j.api.Bar
-import com.github.finfeat4j.core.Dataset
+import com.github.finfeat4j.core.DoubleDataset
 import spock.lang.Shared
 import spock.lang.Specification
 
@@ -71,7 +71,7 @@ abstract class BaseSpec extends Specification {
         return true
     }
 
-    boolean equals(Dataset one, Dataset another) {
+    boolean equals(DoubleDataset one, DoubleDataset another) {
         if (one.data().length != another.data().length) {
             throw new IllegalStateException("Datasets have different length");
         }
@@ -87,7 +87,7 @@ abstract class BaseSpec extends Specification {
         return true
     }
 
-    Dataset load(String name, Class clazz = this.getClass()) {
-        return Dataset.load(clazz.getResource(name).newInputStream())
+    DoubleDataset load(String name, Class clazz = this.getClass()) {
+        return DoubleDataset.load(clazz.getResource(name).newInputStream())
     }
 }

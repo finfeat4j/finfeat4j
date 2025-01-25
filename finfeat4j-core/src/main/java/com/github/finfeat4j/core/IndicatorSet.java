@@ -1,13 +1,16 @@
 package com.github.finfeat4j.core;
 
 import com.github.finfeat4j.api.Indicator;
-import com.github.finfeat4j.label.InstanceTransformer;
 import com.github.finfeat4j.api.LabelProducer;
-import com.github.finfeat4j.label.Instance;
 import com.github.finfeat4j.api.LabelProducer.OnlineLabelProducer;
+import com.github.finfeat4j.label.Instance;
+import com.github.finfeat4j.label.InstanceTransformer;
 
 import java.lang.reflect.Array;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -110,11 +113,11 @@ public class IndicatorSet<T> {
         return result;
     }
 
-    public Dataset withLabels(Stream<T> stream, LabelProducer producer, long stopId) {
+    public DoubleDataset withLabels(Stream<T> stream, LabelProducer producer, long stopId) {
         var data = toInstanceStream(stream, producer, stopId)
             .map(Instance::x)
             .toArray(double[][]::new);
-        return new Dataset(this.names.toArray(String[]::new), data);
+        return new DoubleDataset(this.names.toArray(String[]::new), data);
     }
 
     public Stream<Instance> toInstanceStream(Stream<T> stream, LabelProducer producer, long stopId) {
@@ -126,15 +129,15 @@ public class IndicatorSet<T> {
                 .flatMap(t -> instanceTransformer.apply(t).train());
     }
 
-    public Dataset withLabels(Stream<T> stream, LabelProducer producer) {
+    public DoubleDataset withLabels(Stream<T> stream, LabelProducer producer) {
         return withLabels(stream, producer, -1);
     }
 
-    public Dataset asDataset(Stream<T> stream, long skip) {
-        return new Dataset(this.names.toArray(String[]::new), transform(stream).skip(skip).toArray(double[][]::new));
+    public DoubleDataset asDataset(Stream<T> stream, long skip) {
+        return new DoubleDataset(this.names.toArray(String[]::new), transform(stream).skip(skip).toArray(double[][]::new));
     }
 
-    public Dataset asDataset(Stream<T> stream) {
+    public DoubleDataset asDataset(Stream<T> stream) {
         return this.asDataset(stream, 0);
     }
 

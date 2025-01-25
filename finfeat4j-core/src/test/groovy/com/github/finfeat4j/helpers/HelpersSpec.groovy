@@ -1,10 +1,9 @@
 package com.github.finfeat4j.helpers
 
-
 import com.github.finfeat4j.BaseSpec
 import com.github.finfeat4j.api.Indicator
-import com.github.finfeat4j.helpers.bar.Close
 import com.github.finfeat4j.core.IndicatorSet
+import com.github.finfeat4j.helpers.bar.Close
 
 import java.util.function.Supplier
 

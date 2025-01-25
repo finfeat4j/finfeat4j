@@ -7,7 +7,6 @@ public class AUC extends BaseValidationMetric<Double> {
     private int fp = 0;
     private int tn = 0;
     private int fn = 0;
-    private double auc = 0.0;
 
     @Override
     public Double compute(Instance prediction) {
@@ -27,7 +26,7 @@ public class AUC extends BaseValidationMetric<Double> {
                 fn++;
             }
         }
-        auc = (double) tp / (tp + fn) + (double) tn / (tn + fp);
+        double auc = (double) tp / (tp + fn) + (double) tn / (tn + fp);
         return round(auc / 2);
     }
 }

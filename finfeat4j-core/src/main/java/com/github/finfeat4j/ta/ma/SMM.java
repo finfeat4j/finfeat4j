@@ -3,6 +3,7 @@ package com.github.finfeat4j.ta.ma;
 import com.github.finfeat4j.api.Indicator;
 import com.github.finfeat4j.core.Buffer.ObjBuffer;
 import com.github.finfeat4j.util.SortedVector;
+
 import java.math.BigDecimal;
 
 /**

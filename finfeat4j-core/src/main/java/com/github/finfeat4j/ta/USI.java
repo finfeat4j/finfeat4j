@@ -22,10 +22,11 @@ public class USI implements Indicator<BigDecimal, BigDecimal> {
     }
     @Override
     public BigDecimal apply(BigDecimal v) {
-        double change = (prevX != null) ? v.subtract(prevX).doubleValue() : 0;
+        double SU = (prevX != null) ? v.subtract(prevX).doubleValue() : 0;
+        double SD = (prevX != null) ? prevX.subtract(v).doubleValue() : 0;
         prevX = v;
-        double avgGain = this.usuUp.apply(change > 0 ? BigDecimal.valueOf(change) : BigDecimal.ZERO).doubleValue();
-        double avgLoss = this.usuDown.apply(change <= 0 ? BigDecimal.valueOf(-change) : BigDecimal.ZERO).doubleValue();
+        double avgGain = this.usuUp.apply(BigDecimal.valueOf(Math.max(0, SU))).doubleValue();
+        double avgLoss = this.usuDown.apply(BigDecimal.valueOf(Math.max(0, SD))).doubleValue();
         var usi = (avgGain - avgLoss) / (avgGain + avgLoss);
         if (!Double.isNaN(usi) && Double.isFinite(usi)) {
             return BigDecimal.valueOf(usi);

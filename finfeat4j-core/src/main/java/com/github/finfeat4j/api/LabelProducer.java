@@ -61,8 +61,10 @@ public interface LabelProducer extends Indicator<BigDecimal, Result[]> {
     class OnlineLabelProducer implements Indicator<Instance, Instance[]> {
 
         private final LabelProducer producer;
-        private final ArrayList<Instance> buffer = new ArrayList<>();
+        private final ArrayList<Instance> buffer = new ArrayList<>(50);
         private final long stopOnId;
+        private double min;
+        private double max;
 
         private Result reversal;
 
@@ -85,27 +87,43 @@ public interface LabelProducer extends Indicator<BigDecimal, Result[]> {
             var instances = new ArrayList<Instance>();
             for (Result reversal : reversals) {
                 if (!reversal.equals(this.reversal) && !this.buffer.isEmpty()) {
-                    var r = this.reversal != null ? this.reversal : reversal;
-                    var toTrain = new ArrayList<Instance>();
+                    var label = this.reversal != null ? this.reversal.label() : this.reverseLabel(reversal.label());
                     while (!this.buffer.isEmpty()
                         && this.buffer.getFirst().timestamp() < reversal.id()) {
                         var removed = this.buffer.removeFirst();
-                        removed.setActual(r.label());
+                        removed.setActual(label);
                         removed.setWeight(1.0);
-                        toTrain.add(removed);
+                        instances.add(removed);
                     }
-                    instances.addAll(toTrain);
                 }
+                this.min = reversal.price().doubleValue();
+                this.max = reversal.price().doubleValue();
                 this.reversal = reversal;
             }
-            // this I added myself, requires rethinking but works
-            if (!this.buffer.isEmpty() && this.reversal != null) {
+            if (this.reversal != null) {
                 Label label = reversal.label();
-                var arr = this.buffer.stream().mapToDouble(Instance::trendPrice).toArray();
-                int max = argmax(arr);
-                int min = argmin(arr);
-                int stop = label == Label.SELL ? min : max;
-                for (int i = 0; i < stop-1; i++) {
+                int stop = 0;
+                if (reversals.length > 0) {
+                    var arr = this.buffer.stream().mapToDouble(Instance::trendPrice).toArray();
+                    int max = argmax(arr);
+                    int min = argmin(arr);
+                    this.min = arr[min];
+                    this.max = arr[max];
+                    stop = label == Label.SELL ? min : max;
+                } else {
+                    boolean trendContinues = false;
+                    if (label == Label.SELL && this.min > instance.trendPrice()) {
+                        this.min = instance.trendPrice();
+                        trendContinues = true;
+                    } else if (label == Label.BUY && this.max < instance.trendPrice()) {
+                        this.max = instance.trendPrice();
+                        trendContinues = true;
+                    }
+                    if (trendContinues) {
+                        stop = this.buffer.size() - 1;
+                    }
+                }
+                for (int i = 0; i < stop; i++) {
                     var removed = this.buffer.removeFirst();
                     removed.setActual(label);
                     instances.add(removed);
@@ -157,6 +175,16 @@ public interface LabelProducer extends Indicator<BigDecimal, Result[]> {
 
         public Result getReversal() {
             return reversal;
+        }
+
+        private Label reverseLabel(Label label) {
+            if (label == Label.BUY) {
+                return Label.SELL;
+            } else if (label == Label.SELL) {
+                return Label.BUY;
+            } else {
+                return Label.UNKNOWN;
+            }
         }
     }
 

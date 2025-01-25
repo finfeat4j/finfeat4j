@@ -8,16 +8,14 @@ import com.github.finfeat4j.label.Instance;
  */
 public class AIC extends BaseValidationMetric<Double> {
     private final Classifier.ValidationMetric<Double> logLikelihood;
-    private final Params params;
 
-    public AIC(Classifier.ValidationMetric<Double> logLikelihood) {
-        this.logLikelihood = logLikelihood;
-        this.params = new Params(logLikelihood.getName());
+    public AIC() {
+        this.logLikelihood = new CrossEntropy();
     }
 
     @Override
     public Double compute(Instance prediction) {
-        var value = Math.log(this.logLikelihood.compute(prediction));
+        var value = this.logLikelihood.compute(prediction);
         var numFeatures = prediction.x().length;
         return 2 * numFeatures - 2 * value;
     }
@@ -25,10 +23,5 @@ public class AIC extends BaseValidationMetric<Double> {
     @Override
     public boolean[] maximize() {
         return new boolean[]{false};
-    }
-
-    @Override
-    public Params getParams() {
-        return this.params;
     }
 }

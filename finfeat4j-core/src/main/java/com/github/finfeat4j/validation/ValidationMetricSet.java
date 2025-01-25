@@ -1,9 +1,9 @@
 package com.github.finfeat4j.validation;
 
-import com.github.finfeat4j.api.Indicator;
 import com.github.finfeat4j.api.Classifier;
-import com.github.finfeat4j.label.Instance;
+import com.github.finfeat4j.api.Indicator;
 import com.github.finfeat4j.core.IndicatorSet;
+import com.github.finfeat4j.label.Instance;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,7 +14,7 @@ public class ValidationMetricSet extends IndicatorSet<Instance> {
     private final List<Boolean> maximize = new ArrayList<>();
 
     public ValidationMetricSet() {
-        add(new Accuracy(), new Kappa(), new F1Score(), new MCC(), new BrierScore(), new CrossEntropy(), new ECE(), new Error());
+        add(new Accuracy(), new Kappa(), new F1Score(), new MCC(), new BrierScore(), new CrossEntropy(), new MDL(), new BIC(), new AIC(), new Error());
     }
 
     @Override

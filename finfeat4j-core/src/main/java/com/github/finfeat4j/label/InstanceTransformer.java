@@ -1,8 +1,8 @@
 package com.github.finfeat4j.label;
 
+import com.github.finfeat4j.api.Classifier;
 import com.github.finfeat4j.api.Indicator;
 import com.github.finfeat4j.api.LabelProducer.OnlineLabelProducer;
-import com.github.finfeat4j.api.Classifier;
 
 import java.util.stream.IntStream;
 import java.util.stream.Stream;

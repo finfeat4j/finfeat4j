@@ -1,7 +1,7 @@
 package com.github.finfeat4j.validation;
 
-import com.github.finfeat4j.label.Instance;
 import com.github.finfeat4j.api.LabelProducer.Label;
+import com.github.finfeat4j.label.Instance;
 
 import java.util.function.Function;
 import java.util.stream.IntStream;
