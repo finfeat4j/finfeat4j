@@ -1,7 +1,7 @@
 package com.github.finfeat4j
 
 import com.github.finfeat4j.api.Bar
-import com.github.finfeat4j.core.Dataset
+import com.github.finfeat4j.core.DoubleDataset
 import spock.lang.Specification
 
 import static org.hamcrest.MatcherAssert.assertThat
@@ -63,7 +63,7 @@ class BaseSpec extends Specification {
         return true
     }
 
-    boolean equals(Dataset one, Dataset another) {
+    boolean equals(DoubleDataset one, DoubleDataset another) {
         if (one.data().length != another.data().length) {
             throw new IllegalStateException("Datasets have different length");
         }

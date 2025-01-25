@@ -1,4 +1,4 @@
-package com.github.finfeat4j.strategy;
+package com.github.finfeat4j.classifier;
 
 import com.github.finfeat4j.api.Classifier;
 import com.github.finfeat4j.api.LabelProducer;
@@ -46,7 +46,7 @@ public class LibLinearClassifier implements Classifier {
     private Problem toProblem(TrainTest trainTest, double bias) {
         var problem = new Problem();
         problem.l = trainTest.trainSize();
-        problem.n = trainTest.featureSize() + 1;
+        problem.n = trainTest.featureSize();
         problem.x = new FeatureNode[trainTest.trainSize()][];
         problem.y = new double[trainTest.trainSize()];
         problem.bias = bias;

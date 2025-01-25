@@ -1,8 +1,8 @@
-package com.github.finfeat4j.strategy;
+package com.github.finfeat4j.classifier;
 
 import com.github.finfeat4j.api.Classifier;
-import com.github.finfeat4j.label.Instance;
 import com.github.finfeat4j.api.LabelProducer;
+import com.github.finfeat4j.label.Instance;
 import smile.classification.DiscreteNaiveBayes;
 import smile.classification.KNN;
 import smile.math.distance.HammingDistance;
@@ -15,8 +15,6 @@ import java.util.stream.Stream;
 
 public class SmileClassifier<T> implements Classifier {
 
-
-
     public static Function<Classifier.TrainTest, smile.classification.Classifier<int[]>> NB_TRAIN = trainTest -> {
         var ds = IntDataset.from(trainTest.train(), trainTest.trainSize());
         var classifier = new DiscreteNaiveBayes(DiscreteNaiveBayes.Model.POLYAURN, 2, ds.x()[0].length);
@@ -27,14 +25,13 @@ public class SmileClassifier<T> implements Classifier {
     public static Function<Classifier.TrainTest, smile.classification.Classifier<int[]>> KNN_TRAIN = trainTest -> {
         var ds = IntDataset.from(trainTest.train(), trainTest.trainSize());
         var tree = CoverTree.of(ds.x(), HammingDistance::d);
-        return new KNN<>(tree, ds.y(), 3);
+        return new KNN<>(tree, ds.y(), 5);
     };
 
     public static BiFunction<Classifier.TrainTest, smile.classification.Classifier<int[]>, Instance[]> TEST = (trainTest, nb) -> {
         var ds = IntDataset.from(trainTest.test(), trainTest.testSize());
         var probabilities = new double[ds.x().length][2];
         var predictions = nb.predict(ds.x(), probabilities);
-
         for (int i = 0; i < predictions.length; i++) {
             var instance = ds.instances()[i];
             instance.setPredicted(LabelProducer.Label.valueOf(predictions[i]));
@@ -68,13 +65,5 @@ public class SmileClassifier<T> implements Classifier {
     @Override
     public Instance[] predict(Classifier.TrainTest trainTest) {
         return this.test.apply(trainTest, classifier);
-    }
-
-    public static SmileClassifier<int[]> naiveBayes() {
-        return new SmileClassifier<>(NB_TRAIN, TEST);
-    }
-
-    public static SmileClassifier<int[]> knn() {
-        return new SmileClassifier<>(KNN_TRAIN, TEST);
     }
 }

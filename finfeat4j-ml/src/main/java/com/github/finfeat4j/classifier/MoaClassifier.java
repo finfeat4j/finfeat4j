@@ -1,8 +1,8 @@
-package com.github.finfeat4j.strategy;
+package com.github.finfeat4j.classifier;
 
 import com.github.finfeat4j.api.Classifier;
-import com.github.finfeat4j.label.Instance;
 import com.github.finfeat4j.api.LabelProducer;
+import com.github.finfeat4j.label.Instance;
 import com.yahoo.labs.samoa.instances.Attribute;
 import com.yahoo.labs.samoa.instances.DenseInstance;
 import com.yahoo.labs.samoa.instances.Instances;
@@ -19,9 +19,11 @@ public class MoaClassifier implements Classifier {
 
     private final Learner<InstanceExample> classifier;
     private InstancesHeader header;
+    private final boolean nominal;
 
     @SuppressWarnings("unchecked")
-    public MoaClassifier(String classifier) {
+    public MoaClassifier(String classifier, boolean useNominal) {
+        this.nominal = useNominal;
         this.classifier = (Learner<InstanceExample>) new ClassOption("learner", 'l', "Classifier to use.", moa.classifiers.Classifier.class, classifier)
             .materializeObject(null, null);
     }
@@ -30,8 +32,8 @@ public class MoaClassifier implements Classifier {
     public Instance[] fit(TrainTest trainTest) {
         var attrVec = new FastVector<Attribute>();
         for (int i = 0; i < trainTest.featureSize(); i++) {
-            // adds nominal attribute, values we put do not matter
-            attrVec.addElement(new Attribute("attr" + i, Arrays.asList("0", "1")));
+            // adds nominal attribute, most of the classifiers does not use values
+            attrVec.addElement(nominal ? new Attribute("attr" + i, Arrays.asList("0", "1")) : new Attribute("attr" + i));
         }
         attrVec.add(new Attribute("class", Arrays.asList("0", "1")));
         var instances = new Instances("TEMP", attrVec, 0);
@@ -49,6 +51,10 @@ public class MoaClassifier implements Classifier {
 
     private Instance[] trainAndPredict(TrainTest trainTest) {
         trainTest.train().forEach(i -> classifier.trainOnInstance(toExample(i, true)));
+        /*return Stream.of(Stream.of(trained), trainTest.test())
+                .flatMap(s->s)
+                .map(this::predict)
+                .toArray(Instance[]::new);*/
         return trainTest.test().map(this::predict).toArray(Instance[]::new);
     }
 

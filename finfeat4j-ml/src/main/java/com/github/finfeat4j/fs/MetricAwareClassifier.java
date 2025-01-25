@@ -1,20 +1,20 @@
 package com.github.finfeat4j.fs;
 
-import com.github.finfeat4j.label.Instance;
-import com.github.finfeat4j.validation.ValidationMetricSet;
 import com.github.finfeat4j.api.Classifier;
-import com.github.finfeat4j.validation.TradingMetrics;
+import com.github.finfeat4j.label.Instance;
 import com.github.finfeat4j.validation.TradingEngine;
+import com.github.finfeat4j.validation.TradingMetrics;
+import com.github.finfeat4j.validation.ValidationMetricSet;
 
 import java.util.Arrays;
 import java.util.function.Function;
 
 /**
- * Wraps any strategy, computes and makes metrics accessible
+ * Wraps any classifier, computes and makes metrics accessible
  */
 public class MetricAwareClassifier implements Classifier {
     private final Function<Instance, double[]> transform;
-    private final Classifier strategy;
+    private final Classifier classifier;
     private final TradingEngine engine;
 
     private double[] metrics;
@@ -23,9 +23,9 @@ public class MetricAwareClassifier implements Classifier {
     private final boolean[] maximize;
     private final double[] worstObjectives;
 
-    public MetricAwareClassifier(Classifier strategy, double fee, ValidationMetricSet metrics) {
+    public MetricAwareClassifier(Classifier classifier, double fee, ValidationMetricSet metrics) {
         this.engine = new TradingEngine(fee);
-        this.strategy = strategy;
+        this.classifier = classifier;
         metrics.add(new TradingMetrics(this.engine));
         this.transform = metrics
                 .transform();
@@ -36,12 +36,12 @@ public class MetricAwareClassifier implements Classifier {
 
     @Override
     public Instance[] fit(TrainTest trainTest) {
-        return updateMetrics(strategy.fit(trainTest));
+        return updateMetrics(classifier.fit(trainTest));
     }
 
     @Override
     public Instance[] predict(TrainTest trainTest) {
-        return updateMetrics(strategy.predict(trainTest));
+        return updateMetrics(classifier.predict(trainTest));
     }
 
     private Instance[] updateMetrics(Instance[] predictions) {

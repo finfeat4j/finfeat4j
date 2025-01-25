@@ -19,11 +19,8 @@
  */
 package moa.classifiers.efdt;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Random;
-
+import com.github.javacliparser.FlagOption;
+import com.yahoo.labs.samoa.instances.Instance;
 import moa.classifiers.bayes.NaiveBayes;
 import moa.classifiers.core.AttributeSplitSuggestion;
 import moa.classifiers.core.conditionaltests.InstanceConditionalTest;
@@ -33,8 +30,10 @@ import moa.core.DoubleVector;
 import moa.core.MiscUtils;
 import moa.core.Utils;
 
-import com.github.javacliparser.FlagOption;
-import com.yahoo.labs.samoa.instances.Instance;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Random;
 
 /**
  * Hoeffding Adaptive Tree for evolving data streams.

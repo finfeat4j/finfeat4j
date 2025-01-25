@@ -1,7 +1,7 @@
-package com.github.finfeat4j.fs.jmetal;
+package com.github.finfeat4j.fs;
 
-import com.github.finfeat4j.fs.MetricAwareClassifier;
-import com.github.finfeat4j.fs.TrainTestProvider;
+import com.github.finfeat4j.fs.api.FeatureSelectionModel;
+import com.github.finfeat4j.fs.api.TrainTestProvider;
 import com.github.finfeat4j.label.Instance;
 import com.github.finfeat4j.validation.TradingEngine;
 import org.slf4j.Logger;
@@ -17,7 +17,7 @@ public class BaseFeatureSelectionModel implements FeatureSelectionModel {
     private static final Logger log = org.slf4j.LoggerFactory.getLogger(BaseFeatureSelectionModel.class);
 
     private final Set<String> skipFeatures = Set.of("class", "price", "trendPrice");
-    private final Map<Integer, double[]> resultsCache = new ConcurrentHashMap<>();
+    private final Map<String, double[]> resultsCache = new ConcurrentHashMap<>();
     private final int maxFeatures;
     private final int minFeatures;
     private final boolean[] maximize;
@@ -69,7 +69,7 @@ public class BaseFeatureSelectionModel implements FeatureSelectionModel {
         if (features.length < minFeatures || features.length > maxFeatures) {
             return this.worstObjectives.clone();
         }
-        int key = Set.of(features).hashCode();
+        var key = String.join(",", features);
         return resultsCache.computeIfAbsent(key, k -> {
             var providers = trainTestProvider.apply(features);
             double[][] fitness = new double[providers.length][];
@@ -102,6 +102,10 @@ public class BaseFeatureSelectionModel implements FeatureSelectionModel {
             a[j] += b[j];
         }
         return a;
+    }
+
+    protected Function<String[], TrainTestProvider[]> getTrainTestProvider() {
+        return trainTestProvider;
     }
 
     @Override

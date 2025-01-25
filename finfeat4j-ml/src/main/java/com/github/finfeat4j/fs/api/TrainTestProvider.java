@@ -1,18 +1,22 @@
-package com.github.finfeat4j.fs;
+package com.github.finfeat4j.fs.api;
 
-import com.github.finfeat4j.api.*;
-import com.github.finfeat4j.label.DirectionalChange;
-import com.github.finfeat4j.label.InstanceTransformer;
-import com.github.finfeat4j.label.Instance;
+import com.github.finfeat4j.api.Bar;
+import com.github.finfeat4j.api.Classifier;
+import com.github.finfeat4j.api.Indicator;
+import com.github.finfeat4j.api.LabelProducer;
 import com.github.finfeat4j.api.LabelProducer.Label;
-import com.github.finfeat4j.ml.sfa.SFATransformers;
-import com.github.finfeat4j.core.Dataset;
+import com.github.finfeat4j.core.DoubleDataset;
 import com.github.finfeat4j.core.IndicatorSet;
+import com.github.finfeat4j.label.Instance;
+import com.github.finfeat4j.label.InstanceTransformer;
+import com.github.finfeat4j.ml.sfa.SFATransformers;
 
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.*;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.IntStream;
 
 import static com.github.finfeat4j.util.Shuffle.shuffle;
@@ -31,17 +35,17 @@ public interface TrainTestProvider extends Supplier<Classifier.TrainTest> {
      * @param trainSize of training data
      * @return TrainTestProvider
      */
-    static Supplier<TrainTestProvider> create(IndicatorSet<Bar> initial,
+    static Supplier<TrainTestProvider> create(IndicatorSet<Bar> initial, LabelProducer labelProducer, boolean useSFA,
                                               File sfaModelFile, String[] features, List<Bar> bars, int trainSize) {
         return () -> {
-            final var sfaTransformers = SFATransformers.load(sfaModelFile);
+            final var sfaTransformers = useSFA ? SFATransformers.load(sfaModelFile) : SFATransformers.empty();
             final var indicatorSet = initial.filter(features);
             final var sfaTransformedSet = sfaTransformers.asIndicatorSet(indicatorSet, features);
             final var featureNames = Arrays.asList(sfaTransformedSet.names());
             final int trendPriceIdx = featureNames.indexOf("trendPrice"); // use column config?
             final int priceIdx = featureNames.indexOf("price");
             final int classIdx = featureNames.indexOf("class");
-            final var trainTransform = new InstanceTransformer(new LabelProducer.OnlineLabelProducer(new DirectionalChange(0.05), bars.size()),
+            final var trainTransform = new InstanceTransformer(new LabelProducer.OnlineLabelProducer(labelProducer, bars.size()),
                     trendPriceIdx, priceIdx, classIdx, true);
             final var featureTransform = indicatorSet.transform()
                     .andThen(sfaTransformedSet.transform());
@@ -74,7 +78,7 @@ public interface TrainTestProvider extends Supplier<Classifier.TrainTest> {
      * @param trainRatio ratio of training data
      * @return function which produces TrainTestProvider array for feature selection
      */
-    static Function<String[], TrainTestProvider[]> create(Dataset dataset, int folds, double trainRatio) {
+    static Function<String[], TrainTestProvider[]> create(DoubleDataset dataset, int folds, double trainRatio) {
         final var data = dataset.data();
         final var colConfig = dataset.columnConfig();
         final var skipFeatures = List.of(colConfig.price(), colConfig.trendPrice(), colConfig.label());

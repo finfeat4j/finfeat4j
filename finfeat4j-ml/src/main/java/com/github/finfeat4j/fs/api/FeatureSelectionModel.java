@@ -1,5 +1,6 @@
-package com.github.finfeat4j.fs.jmetal;
+package com.github.finfeat4j.fs.api;
 
+import com.github.finfeat4j.fs.jmetal.FeatureSelectionProblem;
 import org.slf4j.Logger;
 import org.uma.jmetal.algorithm.examples.AlgorithmRunner;
 import org.uma.jmetal.solution.binarysolution.BinarySolution;
