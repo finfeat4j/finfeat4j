@@ -1,8 +1,9 @@
 package com.github.finfeat4j.ta
 
 import com.github.finfeat4j.BaseSpec
-import com.github.finfeat4j.helpers.bar.Close
+import com.github.finfeat4j.api.Bar
 import com.github.finfeat4j.core.IndicatorSet
+import com.github.finfeat4j.helpers.bar.Close
 import com.github.finfeat4j.stats.PCC
 
 class TASpec extends BaseSpec {
@@ -69,9 +70,31 @@ class TASpec extends BaseSpec {
     def 'test correlation'() {
         when:
         def dataset = new IndicatorSet<>(
-            new Close().then(new PCC(10, (val) -> -val)),
+            new Close().then(new PCC(10)),
             new Close().then(new TSI(10))
         ).asDataset(BARS.stream())
+
+        then:
+        dataset
+    }
+
+    def 'test DEC'() {
+        when:
+        def tempBars = [
+                new Bar.BaseBar(1L, 0.0, 0.0, 0.0, 0.0, 0.0, 0),
+                new Bar.BaseBar(2L, 0.0, 0.0, 0.0, 0.0, 0.0, 0),
+                new Bar.BaseBar(3L, 0.0, 0.0, 0.0, 0.0, 0.0, 0),
+                new Bar.BaseBar(4L, 0.0, 1.0, 0.0, 0.0, 0.0, 0),
+                new Bar.BaseBar(5L, 0.0, 0.0, 0.0, 0.0, 0.0, 0),
+                new Bar.BaseBar(6L, 0.0, 0.0, 0.0, 0.0, 0.0, 0),
+                new Bar.BaseBar(7L, 0.0, 0.0, 0.0, 0.0, 0.0, 0),
+                new Bar.BaseBar(8L, 0.0, 1.0, 0.0, 0.0, 0.0, 0),
+                new Bar.BaseBar(9L, 0.0, 0.0, 0.0, 0.0, 0.0, 0),
+                new Bar.BaseBar(10L, 0.0, 0.0, 0.0, 0.0, 0.0, 0),
+        ]
+        def dataset = new IndicatorSet<>(
+            new Close().then(new DEC(4)),
+        ).asDataset(tempBars.stream())
 
         then:
         dataset

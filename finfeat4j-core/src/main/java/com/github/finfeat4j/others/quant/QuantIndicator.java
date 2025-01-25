@@ -1,7 +1,7 @@
 package com.github.finfeat4j.others.quant;
 
-import com.github.finfeat4j.core.Buffer;
 import com.github.finfeat4j.api.Indicator;
+import com.github.finfeat4j.core.Buffer;
 
 import java.math.BigDecimal;
 

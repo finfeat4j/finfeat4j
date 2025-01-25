@@ -63,7 +63,7 @@ public class TrendLabel implements LabelProducer {
             if (x > x_H) {
                 x_H = x;
                 HT = id;
-            } else if (x < x_H - x_H * threshold && LT < HT) {
+            } else if (x < x_H - x_H * threshold && LT <= HT) {
                 // from LT to HT is uptrend return reversal
                 state = new Result(HT, BigDecimal.valueOf(x_H), Label.SELL);
                 x_L = x;

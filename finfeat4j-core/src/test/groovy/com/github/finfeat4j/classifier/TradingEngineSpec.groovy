@@ -1,4 +1,4 @@
-package com.github.finfeat4j.strategy
+package com.github.finfeat4j.classifier
 
 
 import com.github.finfeat4j.BaseSpec

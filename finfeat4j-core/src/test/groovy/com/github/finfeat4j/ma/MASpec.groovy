@@ -1,14 +1,9 @@
 package com.github.finfeat4j.ma
 
-
 import com.github.finfeat4j.BaseSpec
-import com.github.finfeat4j.helpers.bar.Close
 import com.github.finfeat4j.core.IndicatorSet
-import com.github.finfeat4j.ta.ma.EMA
-import com.github.finfeat4j.ta.ma.SMA
-import com.github.finfeat4j.ta.ma.SMM
-import com.github.finfeat4j.ta.ma.VAMA
-import com.github.finfeat4j.ta.ma.WMA
+import com.github.finfeat4j.helpers.bar.Close
+import com.github.finfeat4j.ta.ma.*
 
 class MASpec extends BaseSpec {
 

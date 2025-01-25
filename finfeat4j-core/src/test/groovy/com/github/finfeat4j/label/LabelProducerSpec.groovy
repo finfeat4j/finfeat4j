@@ -2,14 +2,14 @@ package com.github.finfeat4j.label
 
 import com.github.finfeat4j.BaseSpec
 import com.github.finfeat4j.api.Bar
-import com.github.finfeat4j.api.Indicator
 import com.github.finfeat4j.api.Classifier
+import com.github.finfeat4j.api.Indicator
+import com.github.finfeat4j.api.LabelProducer.OnlineLabelProducer
+import com.github.finfeat4j.api.LabelProducer.Result
+import com.github.finfeat4j.core.IndicatorSet
 import com.github.finfeat4j.helpers.bar.Close
 import com.github.finfeat4j.ta.ma.SMA
 import com.github.finfeat4j.validation.TradingEngine
-import com.github.finfeat4j.core.IndicatorSet
-import com.github.finfeat4j.api.LabelProducer.OnlineLabelProducer
-import com.github.finfeat4j.api.LabelProducer.Result;
 
 import java.util.function.Function
 import java.util.stream.Stream

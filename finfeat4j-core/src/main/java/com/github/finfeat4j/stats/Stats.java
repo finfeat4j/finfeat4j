@@ -1,8 +1,9 @@
 package com.github.finfeat4j.stats;
 
-import com.github.finfeat4j.core.Buffer.DoubleBuffer;
 import com.github.finfeat4j.api.Indicator;
+import com.github.finfeat4j.core.Buffer.DoubleBuffer;
 import com.github.finfeat4j.stats.Stats.Result;
+
 import java.math.BigDecimal;
 
 /**

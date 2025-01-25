@@ -6,6 +6,7 @@ import com.github.finfeat4j.helpers.bar.Close;
 import com.github.finfeat4j.helpers.bar.High;
 import com.github.finfeat4j.helpers.bar.Low;
 import com.github.finfeat4j.helpers.bar.Open;
+
 import java.math.BigDecimal;
 
 /**

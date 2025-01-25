@@ -3,12 +3,12 @@ package com.github.finfeat4j.util
 import com.github.finfeat4j.BaseSpec
 import com.github.finfeat4j.api.Bar
 import com.github.finfeat4j.api.Indicator.Wrapper
-import com.github.finfeat4j.core.Dataset
+import com.github.finfeat4j.core.DoubleDataset
 import com.github.finfeat4j.core.IndicatorSet
 import com.github.finfeat4j.helpers.bar.Close
 import com.github.finfeat4j.helpers.bar.Low
-import com.github.finfeat4j.ta.ma.SMA
 import com.github.finfeat4j.stats.Stats
+import com.github.finfeat4j.ta.ma.SMA
 
 class UtilSpec extends BaseSpec {
 
@@ -69,14 +69,14 @@ class UtilSpec extends BaseSpec {
 
     def 'test dataset'() {
         given:
-        def dataset1 = new Dataset(new String[]{"a", "b", "c"},
+        def dataset1 = new DoubleDataset(new String[]{"a", "b", "c"},
             new double[][]{
                 [1, 2, 3],
                 [4, 5, 6],
                 [7, 8, 9]
             }
         )
-        def dataset2 = new Dataset(new String[]{"d", "e", "f"},
+        def dataset2 = new DoubleDataset(new String[]{"d", "e", "f"},
             new double[][]{
                 [10, 11, 12],
                 [13, 14, 15],
@@ -144,7 +144,7 @@ class UtilSpec extends BaseSpec {
 
     def 'test dataset save and load'() {
         given:
-        def dataset = new Dataset(new String[]{"a(1,2,3)", "b", "c"},
+        def dataset = new DoubleDataset(new String[]{"a(1,2,3)", "b", "c"},
             new double[][]{
                 [1, 2, 3],
                 [4, 5, 6],
@@ -155,7 +155,7 @@ class UtilSpec extends BaseSpec {
 
         when:
         dataset.save(file)
-        def loaded = Dataset.load(file.newInputStream())
+        def loaded = DoubleDataset.load(file.newInputStream())
 
         then:
         equals(dataset, loaded)

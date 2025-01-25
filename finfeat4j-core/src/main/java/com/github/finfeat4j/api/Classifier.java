@@ -47,10 +47,10 @@ public interface Classifier {
         }
     }
 
-    public record DoubleDataset(double[][] x, double[] y, Instance[] instances) {
+    public record DoubleDataset(double[][] x, int[] y, Instance[] instances) {
         public static DoubleDataset from(Stream<Instance> stream, int size) {
             var train = new double[size][];
-            var trainLabels = new double[size];
+            var trainLabels = new int[size];
             var instances = new Instance[size];
             int i = 0;
             for (var instance : (Iterable<Instance>) stream::iterator) {

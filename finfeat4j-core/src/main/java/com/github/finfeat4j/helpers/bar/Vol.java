@@ -2,6 +2,7 @@ package com.github.finfeat4j.helpers.bar;
 
 import com.github.finfeat4j.api.Bar;
 import com.github.finfeat4j.api.Indicator;
+
 import java.math.BigDecimal;
 
 public class Vol implements Indicator<Bar, BigDecimal> {

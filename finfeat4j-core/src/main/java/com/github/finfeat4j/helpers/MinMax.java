@@ -1,16 +1,17 @@
 package com.github.finfeat4j.helpers;
 
-import com.github.finfeat4j.core.Buffer.ObjBuffer;
 import com.github.finfeat4j.api.Indicator;
+import com.github.finfeat4j.core.Buffer.ObjBuffer;
 import com.github.finfeat4j.helpers.MinMax.Result;
 import com.github.finfeat4j.util.SortedVector;
+
 import java.math.BigDecimal;
 
 /**
  * Sliding window minimum and maximum indicator.
  * @param <T> any comparable type
  */
-public class MinMax<T extends Number> implements Indicator<T, Result<BigDecimal>> {
+public class MinMax<T extends Number> implements Indicator<T, Result> {
 
     private final SortedVector vector;
     private final ObjBuffer<T> buffer;
@@ -25,7 +26,7 @@ public class MinMax<T extends Number> implements Indicator<T, Result<BigDecimal>
     }
 
     @Override
-    public Result<BigDecimal> apply(T value) {
+    public Result apply(T value) {
         var min = value.doubleValue();
         var max = value.doubleValue();
         if (buffer.isFull()) {
@@ -40,7 +41,7 @@ public class MinMax<T extends Number> implements Indicator<T, Result<BigDecimal>
             max = tempMax = Math.max(tempMax, max);
         }
         buffer.addToEnd(value);
-        return new Result<>(BigDecimal.valueOf(min), BigDecimal.valueOf(max));
+        return new Result(BigDecimal.valueOf(min), BigDecimal.valueOf(max));
     }
 
     @Override
@@ -48,7 +49,7 @@ public class MinMax<T extends Number> implements Indicator<T, Result<BigDecimal>
         return this.params;
     }
 
-    public record Result<T extends Number>(T min, T max) {
+    public record Result(BigDecimal min, BigDecimal max) {
 
     }
 }

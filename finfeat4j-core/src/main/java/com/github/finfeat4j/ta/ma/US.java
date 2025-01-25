@@ -27,7 +27,7 @@ public class US implements Indicator<BigDecimal, BigDecimal> {
         this.c4 = 1 - c1;
         this.c5 = 2 * c1 - c2;
         this.c6 = c1 + c3;
-        this.src = new Buffer.DoubleBuffer(3);
+        this.src = new Buffer.DoubleBuffer(2);
         this.us = new Buffer.DoubleBuffer(2);
         this.params = new Params(length);
     }
@@ -40,7 +40,7 @@ public class US implements Indicator<BigDecimal, BigDecimal> {
             src.addToEnd(val);
             return value;
         } else {
-            double newVal = (c4 * val) + (c5 * src.getR(0)) - (c6 * src.getR(2)) + (c2 * us.getR(0)) + (c3 * us.getR(1));
+            double newVal = (c4 * val) + (c5 * src.getR(0)) - (c6 * src.getR(1)) + (c2 * us.getR(0)) + (c3 * us.getR(1));
             us.addToEnd(newVal);
             src.addToEnd(val);
             return round(newVal, value);
