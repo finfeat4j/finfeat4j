@@ -56,7 +56,7 @@ public class SocketClient implements WebSocketHandler {
             })
             .doFinally((s) -> {
                 log.info("Connection closed in doFinally");
-                messageSink.tryEmitError(new RuntimeException("Connection closed"));
+                messageSink.tryEmitComplete();
             })
             .then();
     }

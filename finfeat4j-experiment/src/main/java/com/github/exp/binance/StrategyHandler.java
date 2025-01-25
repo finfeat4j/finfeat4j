@@ -51,7 +51,7 @@ public class StrategyHandler {
 
     @PostConstruct
     public void connect() {
-        final Retry retry = Retry.fixedDelay(Long.MAX_VALUE, Duration.ofSeconds(30))
+        final Retry retry = Retry.fixedDelay(Long.MAX_VALUE, Duration.ofSeconds(60))
                 .transientErrors(true)
                 .doBeforeRetry(signal -> log.debug("Retrying... (" + signal.toString() + ")", signal.failure()));
         if (this.subscription != null && !this.subscription.isDisposed()) {
@@ -63,6 +63,7 @@ public class StrategyHandler {
                 .doOnError(t -> log.error("Error while connecting to WebSocket", t))
                 .doOnTerminate(() -> log.info("WebSocket connection terminated"))  // Avoid recursive connect calls here
                 .retryWhen(retry)
+                .repeatWhen(repeat -> repeat.delayElements(Duration.ofSeconds(60)))
                 .subscribe();
     }
 

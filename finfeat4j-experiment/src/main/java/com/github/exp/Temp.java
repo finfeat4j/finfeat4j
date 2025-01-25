@@ -1,7 +1,8 @@
 package com.github.exp;
 
 import com.binance.connector.futures.client.impl.UMFuturesClientImpl;
-import com.github.exp.binance.*;
+import com.github.exp.binance.BinanceClient;
+import com.github.exp.binance.KlineInterval;
 
 import java.io.File;
 
