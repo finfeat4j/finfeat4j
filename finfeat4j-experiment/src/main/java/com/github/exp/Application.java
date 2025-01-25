@@ -3,11 +3,13 @@ package com.github.exp;
 import com.binance.connector.futures.client.impl.UMFuturesClientImpl;
 import com.github.exp.binance.*;
 import com.github.exp.telegram.Bot;
-import com.github.finfeat4j.fs.OnlineClassifier;
-import com.github.finfeat4j.validation.ValidationMetricSet;
-import com.github.finfeat4j.strategy.MoaClassifier;
 import com.github.finfeat4j.api.Classifier;
-import com.github.finfeat4j.core.Dataset;
+import com.github.finfeat4j.api.Dataset;
+import com.github.finfeat4j.classifier.MoaClassifier;
+import com.github.finfeat4j.core.DoubleDataset;
+import com.github.finfeat4j.fs.OnlineClassifier;
+import com.github.finfeat4j.label.TrendLabel;
+import com.github.finfeat4j.validation.ValidationMetricSet;
 import io.netty.handler.timeout.ReadTimeoutHandler;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.boot.SpringApplication;
@@ -131,12 +133,12 @@ public class Application {
         var contractTypes = Set.of("PERPETUAL");
         var defaultConfig = config.strategies.get("default");
         var defaultSfaFile = defaultConfig.sfaFile.toFile();
-        var defaultFeatures = Dataset.features(defaultConfig.features, Dataset.DEFAULT);
+        var defaultFeatures = Dataset.features(defaultConfig.features, DoubleDataset.DEFAULT);
 
         Supplier<ValidationMetricSet> metrics = ValidationMetricSet::new;
-        Supplier<Classifier> strategySupplier = () -> new MoaClassifier("efdt.VFDT -d FastNominalAttributeClassObserver");
+        Supplier<Classifier> strategySupplier = () -> new MoaClassifier("trees.HoeffdingTreeHistogram -c 0.001 -s GiniSplitCriterion", true);
         Supplier<OnlineClassifier> defaultRunner = () -> new OnlineClassifier(
-            IndicatorSupplier::get, metrics, strategySupplier, defaultSfaFile, defaultFeatures, 0.0004d, defaultConfig.trainSize()
+            IndicatorSupplier::get, metrics, strategySupplier, () -> new TrendLabel(0.1), true, defaultSfaFile, defaultFeatures, 0.0004d, defaultConfig.trainSize()
         );
         var runners = new HashMap<String, OnlineClassifier>();
         for (var strategy : config.strategies.entrySet()) {
@@ -156,10 +158,10 @@ public class Application {
             }
             var features = defaultFeatures;
             if (f != null) {
-                features = Dataset.features(f, Dataset.DEFAULT);
+                features = Dataset.features(f, DoubleDataset.DEFAULT);
             }
             runners.put(strategy.getKey(), new OnlineClassifier(
-                IndicatorSupplier::get, metrics, strategySupplier, sfaFile, features, 0.0004d, trainSize
+                IndicatorSupplier::get, metrics, strategySupplier, () -> new TrendLabel(0.1), true, sfaFile, features, 0.0004d, trainSize
             ));
         }
         return new StrategyHandler(client, KlineInterval.ONE_DAY, baseAssets, contractTypes, "USDT", defaultRunner, runners, bot);
