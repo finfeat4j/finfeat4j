@@ -19,18 +19,11 @@
  */
 package moa.classifiers.efdt;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
 import com.github.javacliparser.FlagOption;
 import com.github.javacliparser.FloatOption;
 import com.github.javacliparser.IntOption;
 import com.github.javacliparser.MultiChoiceOption;
+import com.yahoo.labs.samoa.instances.Instance;
 import moa.AbstractMOAObject;
 import moa.classifiers.AbstractClassifier;
 import moa.classifiers.bayes.NaiveBayes;
@@ -43,14 +36,10 @@ import moa.classifiers.core.conditionaltests.InstanceConditionalTest;
 import moa.classifiers.core.conditionaltests.NominalAttributeBinaryTest;
 import moa.classifiers.core.conditionaltests.NominalAttributeMultiwayTest;
 import moa.classifiers.core.splitcriteria.SplitCriterion;
-import moa.core.AutoExpandVector;
-import moa.core.DoubleVector;
-import moa.core.Measurement;
-import moa.core.SizeOf;
-import moa.core.StringUtils;
-import moa.core.Utils;
+import moa.core.*;
 import moa.options.ClassOption;
-import com.yahoo.labs.samoa.instances.Instance;
+
+import java.util.*;
 
 /**
  *

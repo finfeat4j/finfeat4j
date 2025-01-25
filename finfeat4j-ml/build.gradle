@@ -36,9 +36,6 @@ dependencies {
     api 'com.github.jbytecode:RCaller:4.0.2'
 
     api 'nz.ac.waikato.cms.moa:moa:2024.07.1-SNAPSHOT'
-    api 'edu.vcu.acano:imbalanced-streams:1.0'
-
-    api "pl.edu.mimuw.rseslib:rseslib:3.4.1-SNAPSHOT"
 }
 
 publishing {
@@ -88,7 +85,6 @@ publishing {
 
 tasks.named('test') {
     useJUnitPlatform()
-    maxHeapSize = "16g"
+    maxHeapSize = "15g"
     minHeapSize = "512m"
-    jvmArgs += "-Djava.library.path=/usr/lib/x86_64-linux-gnu"
 }

@@ -3,7 +3,6 @@ package moa.classifiers.efdt;
 import com.github.javacliparser.FlagOption;
 import com.github.javacliparser.FloatOption;
 import com.yahoo.labs.samoa.instances.Instance;
-
 import moa.classifiers.core.attributeclassobservers.AttributeClassObserver;
 import moa.classifiers.core.attributeclassobservers.NominalAttributeClassObserver;
 import moa.classifiers.core.conditionaltests.InstanceConditionalTest;

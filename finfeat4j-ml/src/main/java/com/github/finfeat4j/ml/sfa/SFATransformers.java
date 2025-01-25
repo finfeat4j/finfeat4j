@@ -1,10 +1,13 @@
 package com.github.finfeat4j.ml.sfa;
 
 import com.github.finfeat4j.api.Bar;
-import com.github.finfeat4j.core.Buffer.DoubleBuffer;
 import com.github.finfeat4j.api.Indicator;
-import com.github.finfeat4j.core.Dataset;
+import com.github.finfeat4j.core.Buffer.DoubleBuffer;
+import com.github.finfeat4j.core.DoubleDataset;
 import com.github.finfeat4j.core.IndicatorSet;
+import sfa.timeseries.TimeSeries;
+import sfa.transformation.SFA;
+import sfa.transformation.SFA.HistogramType;
 
 import java.io.*;
 import java.util.*;
@@ -12,10 +15,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import sfa.timeseries.TimeSeries;
-import sfa.transformation.SFA;
-import sfa.transformation.SFA.HistogramType;
 
 public record SFATransformers(int winSize, Map<String, SFA> sfaMap) implements Serializable  {
 
@@ -60,7 +59,7 @@ public record SFATransformers(int winSize, Map<String, SFA> sfaMap) implements S
         return newOne;
     }
 
-    public static SFATransformers fit(Dataset input, HistogramType histogramType, int wordLength, int alphabetSize,
+    public static SFATransformers fit(DoubleDataset input, HistogramType histogramType, int wordLength, int alphabetSize,
                                       int windowSize, File modelFile, String labelColumn, double trainRatio, String... skipColumns) {
         var toSkip = Set.of(skipColumns);
         var cols = Arrays.stream(input.features())
@@ -99,6 +98,10 @@ public record SFATransformers(int winSize, Map<String, SFA> sfaMap) implements S
         } catch (IOException | ClassNotFoundException e) {
             throw new RuntimeException("Failed to load SFATransformers from file", e);
         }
+    }
+
+    public static SFATransformers empty() {
+        return new SFATransformers(0, Collections.emptyMap());
     }
 
     public static class SFATransformer implements Indicator.ArrayProducer<double[], double[]> {
